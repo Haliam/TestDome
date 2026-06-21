@@ -1,0 +1,51 @@
+# Build outputs
+bin/
+obj/
+
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Rider
+.idea/
+
+# NuGet
+*.nupkg
+.nuget/
+packages/
+
+# Test results
+TestResults/
+*.trx
+coverage.*
+
+# Publish
+publish/
+
+# Logs and databases
+*.log
+*.db
+
+# OS files
+Thumbs.db
+Desktop.ini
+.DS_Store
+
+# Rider and IDE settings
+*.DotSettings.user
+
+# Ignore generated folders from previous layout
+TestDome.Console/obj/
+TestDome.Console/bin/
+TestDome.Tests/obj/
+TestDome.Tests/bin/
+
+# Lock files
+project.assets.json
+
+# Backup files
+*_BackUpThisFolder_ButDontCommit*/
+
