@@ -47,9 +47,11 @@ namespace TestDome.Library
             // common operations: Length, IndexOf (via Array.IndexOf), copy, clear
             yield return "Length: " + arr.Length;
             yield return "IndexOf(3): " + Array.IndexOf(arr, 3);
+
             var copy = new int[arr.Length];
             Array.Copy(arr, copy, arr.Length);
             yield return "Copy: " + string.Join(", ", copy);
+
             Array.Clear(copy, 1, 2); // clear a range
             yield return "After Clear range: " + string.Join(", ", copy);
         }
