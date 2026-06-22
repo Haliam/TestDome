@@ -5,7 +5,8 @@ VisualStudioVersion = 17.12.35527.113
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{9DE38C7B-DF13-4A8D-8ACE-A53FEBA6EB9F}"
 	ProjectSection(SolutionItems) = preProject
-		TextFile1.md = TextFile1.md
+		docs\collections-cheatsheet.md = docs\collections-cheatsheet.md
+		docs\console-formatting.md = docs\console-formatting.md
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{55C6C0DF-39D3-4A8A-B82A-90DA3E600432}"

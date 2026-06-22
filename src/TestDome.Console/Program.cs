@@ -10,11 +10,11 @@ using TestDome.Library;
 Console.WriteLine($"Price with discount = {MegaStore.GetDiscountedPrice(12, 100, MegaStore.DiscountType.Weight)}");
 Console.WriteLine($"Price with discount = {MegaStore.GetDiscountedPriceII(12, 100, MegaStore.DiscountType.Weight)}");
 
-var array = new int[] { 1, 2, 3, 4, 5 };
-
-int[] array2 = new int[] { };
-
-var lenght = array.Length;
+int items = 3;
+double price = 1234.56;
+Console.WriteLine($"Items: {items}, Total: {price:C}");
+// Composite formatting / alignment
+Console.WriteLine("{0,-20} {1,8:C}", "Product A", 19.99);
 
 // Direct calls to verify new examples
 // (diagnostic checks removed)
