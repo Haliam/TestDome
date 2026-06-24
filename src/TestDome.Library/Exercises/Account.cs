@@ -1,6 +1,8 @@
-namespace TestDome.Library
+namespace TestDome.Library;
+
+public class Account
 {
-    public class Account
-    {
-    }
+
 }
+
+

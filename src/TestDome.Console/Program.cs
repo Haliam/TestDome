@@ -1,5 +1,6 @@
 using TestDome.Library;
 
+
 //Console.WriteLine("Collections demo outputs:");
 //foreach (var line in CollectionsDemo.RunAll())
 //{
@@ -13,5 +14,12 @@ Console.WriteLine($"Price with discount = {MegaStore.GetDiscountedPriceII(12, 10
 //GAME PLATFORM TESTS
 Console.WriteLine($"Final speed = {GamePlatform.CalculateFinalSpeed(60, new int[] { 0, 30, 0, -45, 0 })}");
 
-// Direct calls to verify new examples
-// (diagnostic checks removed)
+
+
+
+
+
+
+
+
+
