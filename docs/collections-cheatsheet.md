@@ -18,6 +18,7 @@ This cheatsheet explains the most commonly used .NET collections, their differen
 - **ImmutableList<T> / Immutable collections**: Persistent, thread-safe immutable collections (System.Collections.Immutable).
 - **LINQ**: Declarative query API for projection, filtering, grouping and aggregation.
 - **Concurrent collections**: Thread-safe collections in `System.Collections.Concurrent` (ConcurrentDictionary, ConcurrentQueue, ConcurrentBag, BlockingCollection).
+- **SortedSet<T>**: Self-balancing BST (Red-Black Tree). Maintains sorted unique elements; supports range queries.
 
 ---
 
@@ -49,6 +50,10 @@ This cheatsheet explains the most commonly used .NET collections, their differen
 - `LinkedList<T>`
   - Use when you need O(1) insert/remove and you already have a reference to the node.
   - Avoid if you need frequent random access — indexing is O(n).
+
+- `SortedSet<T>`
+  - Use when you need a set that is always sorted and supports range queries (`GetViewBetween`).
+  - O(log n) add/remove/contains — slower than `HashSet` but gives ordered iteration for free.
 
 - `Span<T>` / `Memory<T>`
   - Use for slicing arrays, stack-only temporary views, or parsing without allocations.
@@ -99,37 +104,158 @@ LINQ is great for readable queries; prefer `List<T>` or arrays as the underlying
 
 ---
 
-## Small examples (summary)
+## Examples with performance notes
 
-- Create a list and add items:
-
-```csharp
-var list = new List<string> { "A", "B" };
-list.Add("C");
-```
-
-- Dictionary lookup with TryGetValue:
+### List\<T\> — dynamic array
 
 ```csharp
-var dict = new Dictionary<int, string>();
-dict[1] = "one";
-if (dict.TryGetValue(1, out var value)) Console.WriteLine(value);
+List<string> fruits = new List<string>();
+fruits.Add("Apple");       // O(1) amortized
+fruits.Add("Banana");
+string first = fruits[0];  // O(1) index access
+fruits.Remove("Banana");   // O(n) shift
 ```
 
-- HashSet membership:
+| Operation | Complexity | Why |
+|---|---|---|
+| Index access | O(1) | Direct array lookup |
+| Search | O(n) | Linear scan |
+| Insert / Remove (end) | O(1)* | Amortized; may resize |
+| Insert / Remove (middle) | O(n) | Elements must shift |
+
+---
+
+### Dictionary\<TKey, TValue\> — hash table
 
 ```csharp
-var set = new HashSet<int> { 1, 2, 3 };
-if (!set.Add(2)) Console.WriteLine("already present");
+var employees = new Dictionary<int, string>();
+employees.Add(101, "Alice");
+employees[102] = "Bob";                          // O(1)
+if (employees.TryGetValue(101, out var name))    // O(1)
+    Console.WriteLine(name);
+employees.Remove(102);                           // O(1)
 ```
 
-- Concurrent queue consumption:
+| Operation | Complexity | Why |
+|---|---|---|
+| Key lookup | O(1) avg | Hash bucket access |
+| Insert / Delete | O(1) avg | Hash + amortized resize |
+| Memory | Higher | Buckets + entries + chains |
+
+---
+
+### HashSet\<T\> — unique items
+
+```csharp
+var tags = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+tags.Add("C#");   // O(1)
+tags.Add("c#");   // ignored — duplicate
+bool exists = tags.Contains("C#"); // O(1)
+var other = new HashSet<string> { "Java", "C#" };
+tags.IntersectWith(other); // keeps only "C#"
+```
+
+| Operation | Complexity | Why |
+|---|---|---|
+| Add | O(1) avg | Hash-based insertion |
+| Contains | O(1) avg | Direct bucket check |
+| Remove | O(1) avg | Hash-based deletion |
+
+---
+
+### Queue\<T\> — FIFO
+
+```csharp
+var tasks = new Queue<string>();
+tasks.Enqueue("Process order"); // O(1)
+tasks.Enqueue("Send email");
+while (tasks.Count > 0)
+    Console.WriteLine(tasks.Dequeue()); // O(1)
+```
+
+| Operation | Complexity | Why |
+|---|---|---|
+| Enqueue | O(1) | Tail pointer update |
+| Dequeue | O(1) | Head pointer update |
+
+---
+
+### Stack\<T\> — LIFO
+
+```csharp
+var history = new Stack<string>();
+history.Push("Homepage");  // O(1)
+history.Push("Products");
+string last = history.Pop(); // O(1) → "Products"
+```
+
+| Operation | Complexity | Why |
+|---|---|---|
+| Push | O(1) | Top pointer update |
+| Pop | O(1) | Top pointer update |
+
+---
+
+### LinkedList\<T\> — node chain
+
+```csharp
+var playlist = new LinkedList<string>();
+var first = playlist.AddFirst("Bohemian Rhapsody"); // O(1)
+playlist.AddLast("Sweet Child O'Mine");             // O(1)
+playlist.AddAfter(first, "Hotel California");       // O(1) — node known
+for (var node = playlist.First; node != null; node = node.Next)
+    Console.WriteLine(node.Value);
+```
+
+| Operation | Complexity | Why |
+|---|---|---|
+| Insert / Remove at node | O(1) | Only pointer updates |
+| Index access | O(n) | Traverse from head/tail |
+
+---
+
+### SortedSet\<T\> — auto-sorted unique elements
+
+```csharp
+var scores = new SortedSet<int> { 85, 90, 75 }; // auto-sorted
+scores.Add(95);
+foreach (var s in scores.GetViewBetween(80, 100)) // range query
+    Console.WriteLine(s); // 85, 90, 95
+```
+
+| Operation | Complexity | Why |
+|---|---|---|
+| Add / Remove | O(log n) | Red-Black Tree rebalance |
+| Contains | O(log n) | Binary tree traversal |
+| Range query | O(log n + k) | Tree view + k results |
+
+---
+
+### ConcurrentQueue consumption
 
 ```csharp
 var cq = new ConcurrentQueue<string>();
 cq.Enqueue("work1");
 if (cq.TryDequeue(out var item)) Process(item);
 ```
+
+---
+
+## Collection comparison table
+
+| Collection | Index Access | Search | Insert / Remove | Best For |
+|---|---|---|---|---|
+| `T[]` | O(1) | O(n) | N/A (fixed) | Fixed-size, performance-critical |
+| `List<T>` | O(1) | O(n) | End O(1)\*, mid O(n) | General-purpose ordered data |
+| `Dictionary<K,V>` | — | O(1) avg | O(1) avg | Key-value lookups |
+| `HashSet<T>` | — | O(1) avg | O(1) avg | Uniqueness, membership tests |
+| `Queue<T>` | — | — | O(1) | FIFO, BFS |
+| `Stack<T>` | — | — | O(1) | LIFO, DFS, backtracking |
+| `LinkedList<T>` | O(n) | O(n) | O(1) at node | Frequent mid-list changes |
+| `SortedSet<T>` | — | O(log n) | O(log n) | Sorted unique items, ranges |
+| `SortedDictionary<K,V>` | — | O(log n) | O(log n) | Sorted key-value pairs |
+
+\* amortized
 
 ---
 
