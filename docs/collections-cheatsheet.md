@@ -106,7 +106,270 @@ LINQ is great for readable queries; prefer `List<T>` or arrays as the underlying
 
 ## Examples with performance notes
 
+### Array
+```csharp
+int[] numbers = { 4, 6, 9 };
+
+foreach (var number in numbers)
+{
+    Console.WriteLine(number);
+}
+
+for (int i = 0; i < numbers.Length; i++)
+{
+    Console.WriteLine($"Index:{i}, Value: {numbers[i]}");
+};
+
+```
+### Reverse iteration (i--) =>
+```csharp
+
+int[] numbers = { 10, 20, 30, 40 };
+
+for (int i = numbers.Length - 1; i >= 0; i--)
+{
+    Console.WriteLine(numbers[i]);
+}
+
+```
+
+### Custom step (skipping elements) =>
+```csharp
+
+int[] numbers = { 1, 2, 3, 4, 5, 6 };
+
+for (int i = 0; i < numbers.Length; i += 2)
+{
+    Console.WriteLine(numbers[i]);
+}
+
+Use cases: Process every 2nd element / Sampling / Performance optimization
+```
+
+### Moving window / two-pointer pattern =>
+```csharp
+
+int[] numbers = { 1, 2, 3, 4, 5 };
+
+for (int left = 0, right = numbers.Length - 1; left < right; left++, right--)
+{
+    Console.WriteLine($"Left: {numbers[left]}, Right: {numbers[right]}");
+}
+
+
+Use cases:
+Comparing pairs / Palindrome checks / Efficient searches
+
+```
+
+### Reverse traversal with condition (early stop) =>
+```csharp
+
+int[] numbers = { 5, 10, 15, 20, 25 };
+
+for (int i = numbers.Length - 1; i >= 0; i--)
+{
+    if (numbers[i] < 15)
+        break;
+
+    Console.WriteLine(numbers[i]);
+}
+
+
+Use cases:
+Find last matching elements / Stop early for performance
+```
+
+
+### Find duplicates in an array (double loop) =>
+```csharp
+
+int[] numbers = { 1, 2, 3, 2, 4, 1 };
+
+for (int i = 0; i < numbers.Length; i++)
+{
+    for (int j = i + 1; j < numbers.Length; j++)
+    {
+        if (numbers[i] == numbers[j])
+        {
+            Console.WriteLine($"Duplicate: {numbers[i]}");
+        }
+    }
+}
+
+Use cases: Find duplicates
+```
+
+
+### Show list without repeated numbers (classic double loop)
+
+```csharp
+int[] numbers = { 1, 2, 3, 2, 4, 1 };
+
+for (int i = 0; i < numbers.Length; i++)
+{
+    bool alreadySeen = false;
+
+    for (int j = 0; j < i; j++)
+    {
+        if (numbers[i] == numbers[j])
+        {
+            alreadySeen = true;
+            break;
+        }
+    }
+
+    if (!alreadySeen)
+    {
+        Console.WriteLine(numbers[i]);
+    }
+}
+
+Use cases: Remove duplicates without extra memory, interview practice
+```
+
+
+#### Show list without repeated numbers (LINQ)
+
+```csharp
+
+int[] numbers = { 1, 2, 3, 2, 4, 1 };
+
+foreach (var n in numbers.Distinct())
+{
+    Console.WriteLine(n);
+}
+
+Use cases: Clean and readable production code
+```
+
+#### Show list without repeated numbers (HashSet)
+```csharp
+
+int[] numbers = { 1, 2, 3, 2, 4, 1 };
+
+var seen = new HashSet<int>();
+
+foreach (var n in numbers)
+{
+    if (seen.Add(n))
+    {
+        Console.WriteLine(n);
+    }
+}
+
+Use cases: Best performance (O(n)), large data processing, production code
+```
+
+### Show only repeated numbers (classic double loop)
+
+```csharp
+<br>
+int[] numbers = { 1, 2, 3, 2, 4, 1 };
+<br>
+for (int i = 0; i < numbers.Length; i++)
+{
+    bool alreadyPrinted = false;
+
+    for (int k = 0; k < i; k++)
+    {
+        if (numbers[k] == numbers[i])
+        {
+            alreadyPrinted = true;
+            break;
+        }
+    }
+
+    if (alreadyPrinted)
+        continue;
+
+    for (int j = i + 1; j < numbers.Length; j++)
+    {
+        if (numbers[i] == numbers[j])
+        {
+            Console.WriteLine(numbers[i]);
+            break;
+        }
+    }
+}
+<br>
+Use cases: Detect duplicates with full control, interview scenarios
+```
+
+<br>
+
+***
+
+#### Show only repeated numbers (LINQ)
+
+```csharp
+
+int[] numbers = { 1, 2, 3, 2, 4, 1 };
+
+var duplicates = numbers
+    .GroupBy(n => n)
+    .Where(g => g.Count() > 1)
+    .Select(g => g.Key);
+
+foreach (var n in duplicates)
+{
+    Console.WriteLine(n);
+}
+
+Use cases: Data processing, analytics, clean filtering
+```
+
+#### Show only repeated numbers (HashSet)
+```csharp
+int[] numbers = { 1, 2, 3, 2, 4, 1 };
+
+var seen = new HashSet<int>();
+var duplicates = new HashSet<int>();
+
+foreach (var n in numbers)
+{
+    if (!seen.Add(n))
+    {
+        duplicates.Add(n);
+    }
+}
+
+foreach (var n in duplicates)
+{
+    Console.WriteLine(n);
+}
+
+Use cases: Efficient duplicate detection, scalable solutions
+```
+
+
 ### List\<T\> — dynamic array
+
+```csharp
+var names = new List<string> { "Ana", "Jorge", "Harold" };
+
+foreach (var name in names)
+{
+    Console.WriteLine(name);
+}
+
+```
+
+### Removing items safely (CRITICAL use case) =>
+```csharp
+var numbers = new List<int> { 1, 2, 3, 4, 5, 6 };
+
+for (int i = numbers.Count - 1; i >= 0; i--)
+{
+    if (numbers[i] % 2 == 0)
+    {
+        numbers.RemoveAt(i);
+    }
+}
+
+*If you remove items while going forward → you’ll skip elements or crash.*
+```
+
 
 ```csharp
 List<string> fruits = new List<string>();
